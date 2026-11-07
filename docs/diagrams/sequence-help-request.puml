@@ -1,0 +1,24 @@
+@startuml
+skinparam dpi 140
+title Create and accept a help request
+
+actor "Family member" as family
+actor "Volunteer" as volunteer
+participant "Mobile app" as app
+participant "Wanas API" as api
+database "PostgreSQL" as db
+
+family -> app : Category, description, and audience
+app -> api : POST /family/seniors/{seniorProfileId}/help-requests
+
+alt CanCreateHelpRequest is false
+  api --> app : 403 Nothing is saved
+else Permission is granted
+  api -> db : Save the help request as open
+  api --> app : 201 Open
+  volunteer -> app : Accept the open request
+  app -> api : POST /help-requests/{helpRequestId}/acceptance
+  api -> db : Save status accepted and the volunteer
+  api --> app : 200 Accepted
+end
+@enduml

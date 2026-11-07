@@ -1,0 +1,30 @@
+@startuml
+skinparam dpi 140
+title Registration and authorization
+
+actor "Senior or volunteer" as user
+participant "Mobile app" as app
+participant "Wanas API" as api
+database "PostgreSQL" as db
+participant "WhatsApp" as wa
+
+user -> app : Phone number and role
+app -> api : POST /registration/codes
+api -> db : Save a pending code
+api -> wa : Send the code
+wa --> user : WhatsApp message
+api --> app : 202 Accepted
+
+user -> app : Enter the code
+app -> api : POST /registration/verify
+
+alt Code is wrong or expired
+  api --> app : 400 No account is created
+else Code matches
+  api -> db : Save the account and remove the code
+  api --> app : 200 and session token
+end
+
+app -> api : GET /admin/reports with that token
+api --> app : 403 Not allowed for this role
+@enduml

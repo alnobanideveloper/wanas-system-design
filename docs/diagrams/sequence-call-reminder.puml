@@ -1,0 +1,29 @@
+@startuml
+skinparam dpi 140
+title Schedule a call and send the reminder
+
+actor "Senior and volunteer" as users
+participant "Mobile app" as app
+participant "Wanas API" as api
+database "PostgreSQL" as db
+participant "FCM and APNs" as push
+
+users -> app : Choose a day and time
+app -> api : POST /interactions
+
+alt Match is not active
+  api --> app : 409 Nothing is saved
+else Match is active
+  api -> db : Save the call as scheduled
+  api --> app : 201 Scheduled
+  api -> push : Send the reminder
+  alt Push fails
+    push --> api : Error
+    api -> db : Mark the reminder failed
+    note right of db : The call stays scheduled
+  else Push succeeds
+    push --> users : Phone notification
+    api -> db : Mark the reminder sent
+  end
+end
+@enduml

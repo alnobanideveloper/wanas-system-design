@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Deployment>
+LAYOUT_TOP_DOWN()
+skinparam dpi 140
+title Wanas deployment diagram, final system
+
+Deployment_Node(phone, "Phone", "Android or iOS") {
+  Container(mobile, "Wanas mobile app", "React Native", "Seniors, volunteers, and family members.")
+}
+Deployment_Node(browser, "Administrator browser", "HTTPS") {
+  Container(browserApp, "Admin dashboard UI", "Browser", "Volunteer review, matches, reports, listings.")
+}
+Deployment_Node(vps, "OVHcloud VPS-1", "Ubuntu, Docker Compose, 4 GB RAM") {
+  Container(proxy, "Caddy", "Reverse proxy", "TLS for wanas-jo.com. Routes the dashboard and /api.")
+  Container(admin, "Admin dashboard", "Next.js", "Administrator application.")
+  Container(api, "Wanas API", "C# monolith", "JSON API, rules, and the in-process worker.")
+  ContainerDb(db, "PostgreSQL", "Database", "Accounts, matches, help, equipment, reports.")
+  Deployment_Node(photos, "Photo volume", "Docker volume") {
+    Container(files, "Equipment photos", "Files", "Listing photos on the VPS disk.")
+  }
+}
+System_Ext(whatsapp, "WhatsApp", "Registration codes.")
+System_Ext(push, "FCM and APNs", "Push reminders.")
+System_Ext(stores, "Google Play and App Store", "Distribute the mobile app.")
+
+Rel(phone, mobile, "Runs")
+Rel(browser, browserApp, "Opens")
+Rel(mobile, proxy, "JSON", "HTTPS")
+Rel(browserApp, proxy, "Uses", "HTTPS")
+Rel(proxy, admin, "Routes the dashboard", "HTTP")
+Rel(proxy, api, "Routes /api", "HTTP")
+Rel(api, db, "Reads and writes", "SQL")
+Rel(api, files, "Stores listing photos")
+Rel(api, whatsapp, "Sends a code", "HTTPS")
+Rel(api, push, "Sends a reminder", "HTTPS")
+Rel(stores, phone, "Installs the app")
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,7 @@
+*
+!.gitignore
+!README.md
+!Wanas-System-Design.pdf
+!docs/
+!docs/**
+.DS_Store

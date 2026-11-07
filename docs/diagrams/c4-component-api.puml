@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_TOP_DOWN()
+skinparam dpi 160
+
+title Components of the Wanas API
+
+Container_Boundary(api, "Wanas API") {
+    Component(http, "HTTP API", "ASP.NET Core", "Authenticates the caller, checks the role, and accepts JSON requests.")
+    Component(app, "Application services", "C#", "Use cases shared by the API and the worker.")
+    Component(domain, "Companionship domain", "C#", "Rules for accounts, profiles, suggestions, schedules, help requests, equipment, and reports.")
+    Component(worker, "Background worker", ".NET hosted service", "Sends registration codes, reminders, and push from inside the same process.")
+    Component(persistence, "Persistence", "Entity Framework Core", "Maps the domain to PostgreSQL and applies migrations.")
+    Component(whatsappGw, "WhatsApp gateway", "HTTP client", "Sends the one-time registration code.")
+    Component(pushGw, "Push gateway", "HTTP client", "Sends messages through FCM and APNs.")
+}
+
+ContainerDb_Ext(db, "PostgreSQL", "SQL database", "Stored on a Docker volume on the VPS.")
+System_Ext(whatsapp, "WhatsApp", "Registration messages.")
+System_Ext(push, "FCM and APNs", "Mobile push.")
+
+Rel(http, app, "Calls a use case")
+Rel(worker, app, "Calls a use case")
+Rel(app, domain, "Applies domain rules")
+Rel(app, persistence, "Loads and saves aggregates")
+Rel(worker, whatsappGw, "Requests a registration code")
+Rel(worker, pushGw, "Requests a push message")
+Rel(persistence, db, "Reads and writes", "SQL")
+Rel(whatsappGw, whatsapp, "Sends the code", "HTTPS")
+Rel(pushGw, push, "Sends the notification", "HTTPS")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,24 @@
+C4Context
+title Wanas system context, final system
+
+Person(senior, "Senior", "Registers, accepts a match, schedules calls, requests help, lists equipment, and can report a concern.")
+Person(volunteer, "Volunteer", "Registers, accepts a match and help requests, and schedules calls after an administrator approves the profile.")
+Person(family, "Family member", "Uses a separate account. Requests a family link and acts within the consented permissions.")
+Person(admin, "Administrator", "Reviews volunteers, confirms suggestions, hides equipment listings, and records safety outcomes.")
+
+System(wanas, "Wanas", "Mobile app, admin dashboard, and API on wanas-jo.com. Companionship, family links, help, and equipment.")
+
+System_Ext(whatsapp, "WhatsApp", "Delivers the registration one-time code.")
+System_Ext(push, "FCM and APNs", "Delivers Android and iOS reminders.")
+System_Ext(osm, "OpenStreetMap", "Supplies map tiles for the home pin.")
+System_Ext(phone, "Telephone network", "Carries the agreed phone call. Wanas stores the time only.")
+
+Rel(senior, wanas, "Registers, matches, requests help, and reports")
+Rel(volunteer, wanas, "Registers, matches, accepts help, and reports")
+Rel(family, wanas, "Links, requests help, and lists equipment", "Granted permissions")
+Rel(admin, wanas, "Reviews, confirms, hides listings, and records outcomes")
+Rel(wanas, whatsapp, "Sends the registration code", "HTTPS")
+Rel(wanas, push, "Sends reminders", "HTTPS")
+Rel(wanas, osm, "Loads map tiles", "HTTPS")
+Rel(senior, phone, "Places the agreed call")
+Rel(volunteer, phone, "Places the agreed call")

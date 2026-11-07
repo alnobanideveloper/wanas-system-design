@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_TOP_DOWN()
+skinparam dpi 160
+
+title Wanas container diagram, final system
+
+Person(participant, "Senior, volunteer, or family member", "Registers, links family, matches, schedules calls, requests help, lists equipment, and reports concerns.")
+Person(admin, "Administrator", "Reviews volunteers, confirms suggestions, hides equipment listings, and records safety outcomes.")
+
+Container(mobile, "Wanas mobile app", "React Native", "One app for Android and iOS. Registration, profiles, family links, suggestions, calls, help requests, equipment, and reports.")
+
+System_Boundary(vps, "Wanas on OVHcloud VPS-1") {
+    Container(adminApp, "Admin dashboard", "Next.js", "Browser application for administrators. Review, confirmation, equipment listings, and safety reports.")
+    Container(api, "Wanas API", "C# monolith, ASP.NET Core", "JSON API and in-process worker. Companionship, help requests, and equipment stay in this process.")
+    ContainerDb(db, "Database", "PostgreSQL", "Accounts, profiles, matches, schedules, help requests, equipment, and safety reports.")
+}
+
+System_Ext(whatsapp, "WhatsApp", "Delivers the registration one-time code.")
+System_Ext(push, "FCM and APNs", "Delivers Android and iOS push notifications.")
+System_Ext(osm, "OpenStreetMap", "Supplies map tiles for the home pin.")
+
+Rel(participant, mobile, "Uses")
+Rel(admin, adminApp, "Uses", "HTTPS")
+Rel(mobile, api, "Registers, matches, schedules, requests help, and reports", "JSON over HTTPS")
+Rel(adminApp, api, "Reviews, confirms, hides listings, and records outcomes", "JSON over HTTPS")
+Rel(api, db, "Reads and writes", "Entity Framework Core")
+Rel(api, whatsapp, "Sends the registration code", "HTTPS")
+Rel(api, push, "Sends reminders and alerts", "HTTPS")
+Rel(mobile, osm, "Loads map tiles", "HTTPS")
+
+SHOW_LEGEND()
+@enduml

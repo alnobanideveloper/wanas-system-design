@@ -1,0 +1,181 @@
+@startuml
+skinparam dpi 120
+skinparam linetype ortho
+skinparam roundcorner 6
+hide circle
+skinparam shadowing false
+skinparam entity {
+  BackgroundColor #F4F8FC
+  BorderColor #1F4E79
+  HeaderBackgroundColor #1F4E79
+  HeaderFontColor #FFFFFF
+  FontSize 12
+}
+
+title Wanas data model
+
+entity "Account" as Account {
+  * AccountId <<PK>>
+  --
+  Role
+  Phone <<unique>>
+  DisplayName
+  PreferredLanguage
+  IsLocked
+  LockedAt
+  LockedByAdminId <<FK>>
+  Status
+}
+
+entity "Admin" as Admin {
+  * AdminId <<PK>>
+  --
+  AccountId <<FK, unique>>
+  FullName
+  StaffTitle
+  IsLocked
+}
+
+entity "SeniorProfile" as Senior {
+  * SeniorProfileId <<PK>>
+  --
+  AccountId <<FK, unique>>
+  AreaName
+  HomeLatitude
+  HomeLongitude
+  Interests
+  PreferredLanguage
+  CommunicationPreference
+}
+
+entity "VolunteerProfile" as Volunteer {
+  * VolunteerProfileId <<PK>>
+  --
+  AccountId <<FK, unique>>
+  AreaName
+  HomeLatitude
+  HomeLongitude
+  Interests
+  Languages
+  Availability
+  VerificationStatus
+}
+
+entity "FamilyLink" as Family {
+  * FamilyLinkId <<PK>>
+  --
+  FamilyAccountId <<FK>>
+  SeniorProfileId <<FK>>
+  ConsentStatus
+  CanCreateHelpRequest
+  CanViewSchedule
+}
+
+entity "Match" as Match {
+  * MatchId <<PK>>
+  --
+  SeniorProfileId <<FK, unique>>
+  VolunteerProfileId <<FK>>
+  Status
+  SeniorAcceptedAt
+  VolunteerAcceptedAt
+  ConfirmedByAdminId <<FK>>
+}
+
+entity "Interaction" as Interaction {
+  * InteractionId <<PK>>
+  --
+  MatchId <<FK>>
+  StartsAt
+  Status
+  ReminderStatus
+}
+
+entity "HelpRequest" as Help {
+  * HelpRequestId <<PK>>
+  --
+  SeniorProfileId <<FK>>
+  CreatedByAccountId <<FK>>
+  Category
+  Description
+  Audience
+  Status
+  AcceptedByVolunteerId <<FK>>
+}
+
+entity "EquipmentListing" as Listing {
+  * ListingId <<PK>>
+  --
+  OwnerAccountId <<FK>>
+  ListingType
+  Title
+  Description
+  Condition
+  AreaName
+  Status
+  ReviewedByAdminId <<FK>>
+}
+
+entity "EquipmentPhoto" as Photo {
+  * PhotoId <<PK>>
+  --
+  ListingId <<FK>>
+  StorageKey
+}
+
+entity "EquipmentHandover" as Handover {
+  * HandoverId <<PK>>
+  --
+  ListingId <<FK>>
+  RequesterAccountId <<FK>>
+  CollectionNote
+  Status
+}
+
+entity "SafetyReport" as Report {
+  * ReportId <<PK>>
+  --
+  ReporterAccountId <<FK>>
+  MatchId <<FK>>
+  Description
+  Status
+  Outcome
+  ReviewedByAdminId <<FK>>
+}
+
+entity "AdminAction" as Action {
+  * ActionId <<PK>>
+  --
+  AdminId <<FK>>
+  ActionType
+  TargetAccountId <<FK>>
+  MatchId <<FK>>
+  Notes
+  CreatedAt
+}
+
+Account ||--o| Admin : "admin data"
+Account ||--o| Senior
+Account ||--o| Volunteer
+Account ||--o{ Family : "family member"
+Senior ||--o{ Family
+Admin ||--o{ Account : "locks"
+Senior ||--o| Match : "one volunteer"
+Volunteer ||--o{ Match : "many seniors"
+Admin ||--o{ Match : "confirms"
+Match ||--o{ Interaction
+Senior ||--o{ Help
+Account ||--o{ Help : "created by"
+Volunteer ||--o{ Help : "accepted by"
+Account ||--o{ Listing
+Admin ||--o{ Listing : "reviews"
+Listing ||--o{ Photo
+Listing ||--o{ Handover
+Account ||--o{ Handover : "requests"
+Account ||--o{ Report : "files"
+Match ||--o{ Report
+Admin ||--o{ Report : "reviews"
+Admin ||--o{ Action
+Account ||--o{ Action : "target"
+Match ||--o{ Action
+@enduml

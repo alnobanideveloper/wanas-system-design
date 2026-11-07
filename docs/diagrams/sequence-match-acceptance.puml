@@ -1,0 +1,32 @@
+@startuml
+skinparam dpi 140
+title Match suggestion and acceptance
+
+participant "Mobile app" as app
+participant "Admin dashboard" as admin
+participant "Wanas API" as api
+database "PostgreSQL" as db
+
+app -> api : POST /matches/suggestions
+api -> db : Read profiles
+api -> db : Save suggestion as proposed
+api --> app : 201 Proposed
+
+admin -> api : POST /matches/{id}/confirmation
+api -> db : Save status offered
+api --> admin : 200 Offered
+
+app -> api : Senior accepts
+api -> db : Save senior acceptance
+api --> app : 200 Still inactive
+
+alt Volunteer declines
+  app -> api : Volunteer declines
+  api -> db : Save status declined
+  api --> app : 200 Declined, no active match
+else Volunteer accepts
+  app -> api : Volunteer accepts
+  api -> db : Save status active
+  api --> app : 200 Active
+end
+@enduml

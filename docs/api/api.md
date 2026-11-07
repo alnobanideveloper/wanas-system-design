@@ -963,5 +963,5 @@ Success, `200 OK`:
 - Section 3, `03-system-context.md`, for the four roles and who may act for a senior.
 - Section 6, `06-runtime-view.md`, for registration, match acceptance, and the call reminder.
 - Section 7, `07-data-architecture.md`, for accounts, family-link flags, the one match per senior, help requests, equipment, reports, and `AdminAction`.
-- Section 1, `wanas-final-complete-project-overview.md`, for registration, matching, scheduling, Helping Hands, Community Exchange, and family consent.
+- Section 1, `01-introduction-goals-requirements.md`, for registration, matching, scheduling, Helping Hands, Community Exchange, and family consent.
 - Section 5, `05-building-block-view.md`, for the single JSON API used by the mobile app and the admin dashboard.
